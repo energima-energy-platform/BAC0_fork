@@ -38,6 +38,7 @@ from ..core.functions.Discover import Discover
 from ..core.functions.GetIPAddr import HostIP
 from ..core.functions.Reinitialize import Reinitialize
 from ..core.functions.Schedule import Schedule
+from ..core.functions.Events import Event
 from ..core.functions.Text import TextMixin
 from ..core.functions.TimeSync import TimeSync
 from ..core.io.IOExceptions import (
@@ -83,6 +84,7 @@ class Lite(
     Schedule,
     Calendar,
     TextMixin,
+    Event
 ):
     """
     Build a BACnet application to accept read and write requests.

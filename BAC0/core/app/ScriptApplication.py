@@ -56,6 +56,8 @@ from bacpypes.service.object import (
     ReadWritePropertyServices,
 )
 
+from BAC0.core.functions.Events import EventSubscriptionContext
+
 from ..functions.Discover import NetworkServiceElementWithRequests
 
 # --- this application's modules ---
@@ -237,6 +239,41 @@ class common_mixin:
         # iocb = IOCB(resp)  # make an IOCB
         # deferred(self.request_io, iocb)
 
+    def do_ConfirmedEventNotificationRequest(self, apdu):
+        context: EventSubscriptionContext = self.event_subscription_contexts.get(
+            apdu.processIdentifier, None
+        )
+        # success
+        response = SimpleAckPDU(context=apdu)
+        self.response(response)
+
+        if context:
+            # execute callback
+            elements = context.event_notification(apdu)
+
+            # send a confirmation
+            self._log.debug("Confirmed Event Notification: {}".format(elements))
+
+            # execute callback
+            if context.callback is not None:
+                context.callback(elements=elements)
+
+    def do_UnconfirmedEventNotificationRequest(self, apdu):
+        context: EventSubscriptionContext = self.event_subscription_contexts.get(
+            apdu.processIdentifier, None
+        )
+
+        if context:
+            # execute callback
+            elements = context.event_notification(apdu)
+
+            self._log.debug("Confirmed Event Notification: {}".format(elements))
+            self.event_subscription_contexts["context_callback"](elements)
+
+            # execute callback
+            if context.callback is not None:
+                context.callback(elements=elements)
+
 
 @note_and_log
 class BAC0Application(
@@ -267,6 +304,7 @@ class BAC0Application(
         aseID=None,
         iam_req: Optional[IAmRequest] = None,
         subscription_contexts: Optional[Dict[Any, Any]] = None,
+        event_subscription_contexts: Optional[Dict[Any, Any]] = None,
     ) -> None:
 
         ApplicationIOController.__init__(
@@ -325,6 +363,9 @@ class BAC0Application(
         # to support CoV
         self.subscription_contexts = subscription_contexts
 
+        # to support events
+        self.event_subscription_contexts = event_subscription_contexts
+
     def close_socket(self):
         # pass to the multiplexer, then down to the sockets
         self.mux.close_socket()
@@ -366,6 +407,7 @@ class BAC0ForeignDeviceApplication(
         aseID=None,
         iam_req=None,
         subscription_contexts=None,
+        event_subscription_contexts=None,
     ):
 
         ApplicationIOController.__init__(
@@ -423,6 +465,9 @@ class BAC0ForeignDeviceApplication(
         # to support CoV
         self.subscription_contexts = subscription_contexts
 
+        # to support events
+        self.event_subscription_contexts = event_subscription_contexts
+
     def close_socket(self):
         # pass to the multiplexer, then down to the sockets
         self.mux.close_socket()
@@ -466,6 +511,7 @@ class BAC0BBMDDeviceApplication(
         aseID=None,
         iam_req=None,
         subscription_contexts=None,
+        event_subscription_contexts=None,
     ):
 
         self.bdtable = bdtable
@@ -532,6 +578,9 @@ class BAC0BBMDDeviceApplication(
 
         # to support CoV
         self.subscription_contexts = subscription_contexts
+
+        # to support events
+        self.event_subscription_contexts = event_subscription_contexts
 
     def add_peer(self, address):
         try:

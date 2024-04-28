@@ -8,7 +8,7 @@ from bacpypes.object import (
     BinaryValueObject,
     CharacterStringValueObject,
     DateTimeValueObject,
-    MultiStateValueObject,
+    MultiStateValueObject
 )
 from bacpypes.primitivedata import Boolean, CharacterString, Date, Time
 

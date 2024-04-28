@@ -185,6 +185,7 @@ class Base:
         self.firmwareRevision = firmwareRevision
         self._ric = {}
         self.subscription_contexts = {}
+        self.event_subscription_contexts = {}
         self.database = None
 
         try:
@@ -231,6 +232,7 @@ class Base:
                     bdtable=self.bdtable,
                     iam_req=self._iam_request(),
                     subscription_contexts=self.subscription_contexts,
+                    event_subscription_contexts = self.event_subscription_contexts
                 )
                 app_type = "BBMD Device"
             elif self.bbmdAddress and self.bbmdTTL > 0:
@@ -243,6 +245,7 @@ class Base:
                     bbmdTTL=self.bbmdTTL,
                     iam_req=self._iam_request(),
                     subscription_contexts=self.subscription_contexts,
+                    event_subscription_contexts = self.event_subscription_contexts
                 )
                 app_type = "Foreign Device"
             else:
@@ -252,6 +255,7 @@ class Base:
                     networkNumber=self.networkNumber,
                     iam_req=self._iam_request(),
                     subscription_contexts=self.subscription_contexts,
+                    event_subscription_contexts = self.event_subscription_contexts
                 )
                 app_type = "Simple BACnet/IP App"
             self._log.debug("Starting")
