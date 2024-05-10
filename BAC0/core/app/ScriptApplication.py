@@ -251,7 +251,7 @@ class common_mixin:
             # execute callback
             elements = context.event_notification(apdu)
 
-            # send a confirmation
+            # log a confirmation
             self._log.debug("Confirmed Event Notification: {}".format(elements))
 
             # execute callback
@@ -267,9 +267,7 @@ class common_mixin:
             # execute callback
             elements = context.event_notification(apdu)
 
-            self._log.debug("Confirmed Event Notification: {}".format(elements))
-            self.event_subscription_contexts["context_callback"](elements)
-
+            self._log.debug("Unconfirmed Event Notification: {}".format(elements))
             # execute callback
             if context.callback is not None:
                 context.callback(elements=elements)
